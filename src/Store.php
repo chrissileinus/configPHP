@@ -1,8 +1,8 @@
 <?php
 
-namespace Chrissileinus;
+namespace Chrissileinus\Config;
 
-class Config implements \ArrayAccess, \Serializable, \JsonSerializable, \IteratorAggregate, \Traversable
+class Store implements \ArrayAccess, \Serializable, \JsonSerializable, \IteratorAggregate, \Traversable
 {
   protected static $current = [];
 
