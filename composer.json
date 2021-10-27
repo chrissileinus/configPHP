@@ -1,0 +1,16 @@
+{
+    "name": "chrissileinus/configphp",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Chrissileinus\\Configphp\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Christian Backus",
+            "email": "chrissileinus@googlemail.com"
+        }
+    ],
+    "require": {}
+}
