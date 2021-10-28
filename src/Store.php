@@ -10,6 +10,13 @@ class Store implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterator
    * set
    *
    * @param  mixed $args
+   * Array or Abject will be merged in storage with array_replace_recursive($storage, $arg).
+   *
+   * A path to a file or a glob will be get read and parsed by yaml_parse, json_decode or unserialize. The result will also be merged into storage.
+   *
+   * A with yaml_parse, json_decode or unserialize parsable string will also be merged into storage.
+   *
+   *
    * @return void
    */
   public static function set(...$args)
@@ -20,34 +27,49 @@ class Store implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterator
         continue;
       }
 
+      if (is_file($arg) && $content = file_get_contents($arg)) {
+        self::importContent($content);
+        continue;
+      }
+
       if ($files = glob($arg)) {
         foreach ($files as $file) {
           if ($content = file_get_contents($file)) {
-            if ($value = \yaml_parse($content, 0, null, [
-              '!php' => function ($value, $tag, $flags) {
-                [$class, $const] = explode('::', $value);
-                return $class::getConstant($const);
-              }
-            ])) {
-              self::$current = array_replace_recursive(self::$current, (array) $value);
-              continue;
-            }
-          }
-
-          if ($value = json_decode($content, false, 512, JSON_OBJECT_AS_ARRAY)) {
-            self::$current = array_replace_recursive(self::$current, (array) $value);
-            continue;
-          }
-
-          if ($value = unserialize($content, false) && (is_array($value) || is_object($value))) {
-            self::$current = array_replace_recursive(self::$current, (array) $value);
-            continue;
+            self::importContent($content);
           }
         }
+        continue;
+      }
+
+      if (is_string($arg)) {
+        self::importContent($arg);
+        continue;
       }
     }
   }
 
+  private static function importContent(string $content)
+  {
+    if ($value = \yaml_parse($content, 0, $_, [
+      '!php' => function ($value, $tag, $flags) {
+        [$class, $const] = explode('::', $value);
+        return $class::getConstant($const);
+      }
+    ])) {
+      self::$current = array_replace_recursive(self::$current, (array) $value);
+      return;
+    }
+
+    if ($value = json_decode($content, false, 512, JSON_OBJECT_AS_ARRAY)) {
+      self::$current = array_replace_recursive(self::$current, (array) $value);
+      return;
+    }
+
+    if ($value = unserialize($content, false) && (is_array($value) || is_object($value))) {
+      self::$current = array_replace_recursive(self::$current, (array) $value);
+      return;
+    }
+  }
 
   public static function get()
   {
