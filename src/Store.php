@@ -69,7 +69,7 @@ class Store implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterator
   {
     if ($value = yaml_parse($content, 0, $_, [
       '!php' => function ($value, $tag, $flags) {
-        [$class, $const] = explode('::', $value);
+        [$class, $const] = \explode('::', $value);
         return $class::getConstant($const);
       }
     ])) {
@@ -82,7 +82,7 @@ class Store implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterator
       return;
     }
 
-    if ($value = unserialize($content, false) && (is_array($value) || is_object($value))) {
+    if ($value = unserialize($content) && (is_array($value) || is_object($value))) {
       self::importArray((array) $value);
       return;
     }
