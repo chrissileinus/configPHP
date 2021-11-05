@@ -11,10 +11,32 @@ namespace Chrissileinus\Config;
 
 class Store implements \ArrayAccess, \Serializable, \JsonSerializable, \IteratorAggregate, \Traversable
 {
+  /** Singleton start */
+  private static $instance = null;
+
+  function __construct()
+  {
+  }
+
+  public static function _(): self
+  {
+    return self::getInstance();
+  }
+
+  public static function getInstance(): self
+  {
+    if (null === self::$instance) {
+      self::$instance = new self();
+    }
+
+    return self::$instance;
+  }
+  /** Singleton end */
+
   protected static $storage = [];
 
   /**
-   * set
+   * integrate
    *
    * @param  mixed $args
    * Array or Abject will be merged in storage with array_replace_recursive($storage, $arg).
@@ -23,10 +45,9 @@ class Store implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterator
    *
    * A with yaml_parse, json_decode or unserialize parsable string will also be merged into storage.
    *
-   *
    * @return void
    */
-  public static function set(...$args)
+  public static function integrate(...$args)
   {
     foreach ($args as $arg) {
       if (is_array($arg) || is_object($arg)) {
@@ -105,9 +126,9 @@ class Store implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterator
     }
   }
 
-  public static function get()
+  public static function export(): array
   {
-    return (object) self::$storage;
+    return self::$storage;
   }
 
   /** ArrayAccess */
