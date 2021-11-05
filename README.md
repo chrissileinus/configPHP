@@ -8,7 +8,7 @@ There was a need for a small class that is able to read the config from serval i
 
 ## Usage
 ```PHP
-Config\Store::integrate(
+Config\Storage::integrate(
   // default values
   [
     'database' => [
@@ -31,7 +31,7 @@ Config\Store::integrate(
   '/etc/App/*.json'
 );
 
-$dbConfig = Config\Store::getInstance()['database'];
+$dbConfig = Config\Storage::getInstance()['database'];
 $db = new PDO("mysql:host={$dbConfig['host']};port={$dbConfig['port']};dbname={$dbConfig['name']}", $dbConfig['user'], $dbConfig['pass']);
 <<<<<<< HEAD
 ```
