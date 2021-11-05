@@ -18,11 +18,22 @@ class Store implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterator
   {
   }
 
+  /**
+   * _
+   * same as getInstance
+   *
+   * @return self
+   */
   public static function _(): self
   {
     return self::getInstance();
   }
 
+  /**
+   * getInstance
+   *
+   * @return self
+   */
   public static function getInstance(): self
   {
     if (null === self::$instance) {
@@ -39,11 +50,9 @@ class Store implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterator
    * integrate
    *
    * @param  mixed $args
-   * Array or Abject will be merged in storage with array_replace_recursive($storage, $arg).
-   *
-   * A path to a file or a glob will be get read and parsed by yaml_parse, json_decode or unserialize. The result will also be merged into storage.
-   *
-   * A with yaml_parse, json_decode or unserialize parsable string will also be merged into storage.
+   * * `string` with path to file or a glob. All content get read and parsed by yaml_parse, json_decode or unserialize. The result get integrated into storage.
+   * * `string` with yaml_parse, json_decode or unserialize parsable string gat also integrated into storage.
+   * * `array` or `object` get integrated into the storage with array_replace_recursive($storage, $arg).
    *
    * @return void
    */
@@ -51,26 +60,26 @@ class Store implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterator
   {
     foreach ($args as $arg) {
       if (is_array($arg) || is_object($arg)) {
-        self::importArray((array) $arg);
+        self::integrateArray((array) $arg);
         continue;
       }
 
       if (is_file($arg) && $content = file_get_contents($arg)) {
-        self::importContent($content);
+        self::integrateContent($content);
         continue;
       }
 
       if ($files = glob($arg)) {
         foreach ($files as $file) {
           if ($content = file_get_contents($file)) {
-            self::importContent($content);
+            self::integrateContent($content);
           }
         }
         continue;
       }
 
       if (is_string($arg)) {
-        self::importContent($arg);
+        self::integrateContent($arg);
         continue;
       }
     }
@@ -87,23 +96,39 @@ class Store implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterator
   }
 
   /**
-   * importArray
+   * overwriteWith
    *
-   * @param  mixed $array
    * @return void
    */
-  private static function importArray(array $array)
+  public static function overwriteWith(array $new)
   {
-    self::$storage = array_replace_recursive(self::$storage, $array);
+    self::$storage = $new;
   }
 
   /**
-   * importContent
+   * integrateArray
    *
-   * @param  mixed $content
-   * @return void
+   * @param  array $array
+   * * get integrated into the storage with array_replace_recursive($storage, $array).
+   *
+   * @return bool true on success
    */
-  private static function importContent(string $content)
+  private static function integrateArray(array $array): bool
+  {
+    if ($temp = array_replace_recursive(self::$storage, $array) === null) return false;
+    self::$storage = $temp;
+    return true;
+  }
+
+  /**
+   * integrateContent
+   *
+   * @param  string $content
+   * * get parsed with yaml_parse, json_decode or unserialize and the resulting array get processed with `integrateArray`.
+   *
+   * @return bool true on success
+   */
+  private static function integrateContent(string $content): bool
   {
     if ($value = yaml_parse($content, 0, $_, [
       '!php' => function ($value, $tag, $flags) {
@@ -111,18 +136,15 @@ class Store implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterator
         return $class::getConstant($const);
       }
     ])) {
-      self::importArray((array) $value);
-      return;
+      return self::integrateArray((array) $value);
     }
 
     if ($value = json_decode($content, false, 512, JSON_OBJECT_AS_ARRAY)) {
-      self::importArray((array) $value);
-      return;
+      return self::integrateArray((array) $value);
     }
 
     if ($value = unserialize($content) && (is_array($value) || is_object($value))) {
-      self::importArray((array) $value);
-      return;
+      return self::integrateArray((array) $value);
     }
   }
 
