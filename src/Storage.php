@@ -118,14 +118,16 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
    */
   private static function integrateContent(string $content)
   {
-    if ($value = yaml_parse($content, 0, $_, [
+    if ($value = yaml_parse($content, 0, $ndocs, [
       '!php' => function ($value, $tag, $flags) {
         [$class, $const] = \explode('::', $value);
         return $class::getConstant($const);
       }
     ])) {
-      self::integrateArray((array) $value);
-      return;
+      if ($value != $content) { // Yea it is posible that the output is the same as te input.
+        self::integrateArray((array) $value);
+        return;
+      }
     }
 
     if ($value = json_decode($content, false, 512, JSON_OBJECT_AS_ARRAY)) {
