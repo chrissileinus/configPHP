@@ -1,6 +1,8 @@
 {
     "name": "chrissileinus/config-php",
     "type": "library",
+    "description": "A storage to hold the config of a app. It ist mainly static but as a Singleton I have interated the interfaces ArrayAccess, Serializable, JsonSerializable, IteratorAggregate and Traversable.",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
             "Chrissileinus\\Config\\": "src/"
