@@ -33,4 +33,8 @@ Config\Store::integrate(
 
 $dbConfig = Config\Store::getInstance()['database'];
 $db = new PDO("mysql:host={$dbConfig['host']};port={$dbConfig['port']};dbname={$dbConfig['name']}", $dbConfig['user'], $dbConfig['pass']);
+<<<<<<< HEAD
 ```
+=======
+```
+>>>>>>> c55c938b1f2015671f6c08f87bae75ab38f30615
