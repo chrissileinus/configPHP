@@ -1,5 +1,5 @@
 {
-    "name": "chrissileinus/configphp",
+    "name": "chrissileinus/config-php",
     "type": "library",
     "autoload": {
         "psr-4": {
