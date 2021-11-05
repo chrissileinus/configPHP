@@ -6,7 +6,6 @@ A storage to hold the config of a app. It ist mainly static but as a Singleton I
 
 There was a need for a small class that is able to read the config from serval inputs and files so that it is stored in a way that it is globaly accessable with serval interfaces.
 
-
 ## Usage
 ```PHP
 Config\Store::integrate(
