@@ -135,7 +135,7 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
       return;
     }
 
-    if ($value = unserialize($content) && (is_array($value) || is_object($value))) {
+    if ($value = @unserialize($content) && (is_array($value) || is_object($value))) {
       self::integrateArray((array) $value);
       return;
     }
