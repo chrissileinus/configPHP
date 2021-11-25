@@ -130,7 +130,15 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
       }
     }
 
-    if ($value = json_decode($content, false, 512, JSON_OBJECT_AS_ARRAY)) {
+    if (
+      $value = json_decode($content, false, 512, JSON_OBJECT_AS_ARRAY) &&
+      json_last_error() == JSON_ERROR_NONE
+    ) {
+      self::integrateArray((array) $value);
+      return;
+    }
+
+    if ($value = parse_ini_string($content, true, INI_SCANNER_TYPED)) {
       self::integrateArray((array) $value);
       return;
     }
