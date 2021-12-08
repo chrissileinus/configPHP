@@ -9,6 +9,8 @@
 
 namespace Chrissileinus\Config;
 
+use ArrayIterator;
+
 class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \IteratorAggregate, \Traversable
 {
   /** Singleton start */
@@ -90,7 +92,7 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
    *
    * @return void
    */
-  public static function clear()
+  public static function clear(): void
   {
     self::$storage = [];
   }
@@ -103,7 +105,7 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
    *
    * @return void
    */
-  private static function integrateArray(array $array)
+  private static function integrateArray(array $array): void
   {
     self::$storage = array_replace_recursive(self::$storage, $array);
   }
@@ -116,7 +118,7 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
    *
    * @return void
    */
-  private static function integrateContent(string $content)
+  private static function integrateContent(string $content): void
   {
     if ($value = yaml_parse($content, 0, $ndocs, [
       '!php' => function ($value, $tag, $flags) {
@@ -149,6 +151,7 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
     }
   }
 
+
   public static function export(): array
   {
     return self::$storage;
@@ -160,7 +163,7 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
     return isset(self::$storage[$offset]);
   }
 
-  public function offsetSet($offset, $value)
+  public function offsetSet($offset, $value): void
   {
   }
 
@@ -169,29 +172,33 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
     return self::$storage[$offset];
   }
 
-  public function offsetUnset($offset)
+  public function offsetUnset($offset): void
   {
   }
 
   /** Serializable  */
-  public function serialize(): string
+  /**
+   * serialize
+   *
+   * @return string|null
+   */
+  public function serialize(): ?string
   {
     return serialize(self::$storage);
   }
-
-  public function unserialize($data)
+  public function unserialize(mixed $data): void
   {
     self::$storage = unserialize($data);
   }
 
   /** JsonSerializable */
-  public function jsonSerialize()
+  public function jsonSerialize(): mixed
   {
     return self::$storage;
   }
 
   /** */
-  public function getIterator()
+  public function getIterator(): ArrayIterator
   {
     return new \ArrayIterator(self::$storage);
   }
