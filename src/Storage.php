@@ -46,6 +46,19 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
   }
   /** Singleton end */
 
+  protected static $static = [];
+
+  /**
+   * Set a static values
+   *
+   * @param  array $static
+   * @return void
+   */
+  public static function setStatic(array $static)
+  {
+    self::$static = $static;
+  }
+
   protected static $storage = [];
 
   /**
@@ -97,6 +110,21 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
     self::$storage = [];
   }
 
+  protected static function walk_recursive_remove_static(array $static, array $array)
+  {
+    foreach ($array as $k => $v) {
+      if (is_array($v) && isset($static[$k])) {
+        $array[$k] = self::walk_recursive_remove_static($static[$k], $v);
+      } else {
+        if (isset($static[$k])) {
+          unset($array[$k]);
+        }
+      }
+    }
+
+    return $array;
+  }
+
   /**
    * integrateArray
    *
@@ -107,6 +135,15 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
    */
   private static function integrateArray(array $array): void
   {
+    if (!self::$storage) {
+      self::$storage = $array;
+      return;
+    }
+
+    if (self::$storage && self::$static) {
+      $array = self::walk_recursive_remove_static(self::$static, $array);
+    }
+
     self::$storage = array_replace_recursive(self::$storage, $array);
   }
 
