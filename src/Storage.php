@@ -160,6 +160,9 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
     if ($value = yaml_parse($content, 0, $ndocs, [
       '!php' => function ($value, $tag, $flags) {
         [$class, $const] = \explode('::', $value);
+        if (enum_exists($class)) {
+          return unserialize('E:' . strlen($class) + 1 + strlen($const) . ':"' . $class . ':' . $const . '";');
+        }
         return $class::getConstant($const);
       }
     ])) {
