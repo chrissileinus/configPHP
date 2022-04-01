@@ -13,38 +13,8 @@ use ArrayIterator;
 
 class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \IteratorAggregate, \Traversable
 {
-  /** Singleton start */
-  private static $instance = null;
-
-  function __construct()
-  {
-  }
-
-  /**
-   * _
-   * same as getInstance
-   *
-   * @return self
-   */
-  public static function _(): self
-  {
-    return self::getInstance();
-  }
-
-  /**
-   * getInstance
-   *
-   * @return self
-   */
-  public static function getInstance(): self
-  {
-    if (null === self::$instance) {
-      self::$instance = new self();
-    }
-
-    return self::$instance;
-  }
-  /** Singleton end */
+  use arrayAccessReadOnly;
+  use singleton;
 
   protected static $static = [];
 
@@ -195,25 +165,6 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
   public static function export(): array
   {
     return self::$storage;
-  }
-
-  /** ArrayAccess */
-  public function offsetExists($offset): bool
-  {
-    return isset(self::$storage[$offset]);
-  }
-
-  public function offsetSet($offset, $value): void
-  {
-  }
-
-  public function offsetGet($offset): mixed
-  {
-    return self::$storage[$offset];
-  }
-
-  public function offsetUnset($offset): void
-  {
   }
 
   /** Serializable  */
