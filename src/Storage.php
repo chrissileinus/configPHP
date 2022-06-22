@@ -32,6 +32,51 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
   protected static $storage = [];
 
   /**
+   * get
+   * 
+   * get a value from storage by the $path. If the $path not end on a valid match this function tries to get the value the $path upwards.
+   * 
+   * ```
+   * self::$storage[
+   *   'log' => [
+   *     'timeZone' => "Europe/Berlin", // global time zone
+   *     'timeFormat' => "Y.m.d H:i:s", // global time format
+   *   ],
+   *   'console' => [
+   *     'level' => Log\Level::INFO,
+   *   ],
+   * ];
+   * 
+   * self::get('console/timeZone') //will result in "Europe/Berlin"
+   * ```
+   *
+   * @param  string $path
+   * @return mixed
+   */
+  public static function get(string $path): mixed
+  {
+    $path = explode("/", $path);
+    $last = $path[count($path) - 1];
+
+    if ($path == $last) return self::$storage[$last];
+
+    $current = self::$storage;
+    $value = isset(self::$storage[$last]) ? self::$storage[$last] : null;
+    foreach ($path as $key) {
+      if (!isset($current[$key])) return $value;
+      $current = $current[$key];
+
+      if (
+        $key != $last &&
+        is_array($current) &&
+        isset($current[$last])
+      ) $value = $current[$last];
+    }
+
+    return $value;
+  }
+
+  /**
    * integrate
    *
    * @param  mixed $args
