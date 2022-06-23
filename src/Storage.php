@@ -34,7 +34,7 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
   /**
    * get
    * 
-   * get a value from storage by the $path. If the $path not end on a valid match this function tries to get the value the $path upwards.
+   * get a value from storage by the $path. If the $path not end on a valid match this function tries to get the value from a parent.
    * 
    * ```
    * self::$storage[
@@ -56,7 +56,7 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
   public static function get(string $path): mixed
   {
     $path = explode("/", $path);
-    $last = $path[count($path) - 1];
+    $last = $path[array_key_last($path)];
 
     if ($path == $last) return self::$storage[$last];
 
