@@ -16,7 +16,7 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
   use arrayAccessReadOnly;
   use singleton;
 
-  protected static $static = [];
+  private static $static = [];
 
   /**
    * Set a static values
@@ -26,10 +26,10 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
    */
   public static function setStatic(array $static)
   {
-    self::$static = $static;
+    static::$static = $static;
   }
 
-  protected static $storage = [];
+  private static $storage = [];
 
   /**
    * get
@@ -37,7 +37,7 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
    * get a value from storage by the $path. If the $path not end on a valid match this function tries to get the value from a parent.
    * 
    * ```
-   * self::$storage[
+   * static::$storage[
    *   'log' => [
    *     'timeZone' => "Europe/Berlin", // global time zone
    *     'timeFormat' => "Y.m.d H:i:s", // global time format
@@ -58,10 +58,10 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
     $path = explode("/", $path);
     $last = $path[array_key_last($path)];
 
-    if ($path == $last) return self::$storage[$last];
+    if ($path == $last) return static::$storage[$last];
 
-    $current = self::$storage;
-    $value = isset(self::$storage[$last]) ? self::$storage[$last] : null;
+    $current = static::$storage;
+    $value = isset(static::$storage[$last]) ? static::$storage[$last] : null;
     foreach ($path as $key) {
       if (!isset($current[$key])) return $value;
       $current = $current[$key];
@@ -122,7 +122,7 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
    */
   public static function clear(): void
   {
-    self::$storage = [];
+    static::$storage = [];
   }
 
   protected static function walk_recursive_remove_static(array $static, array $array)
@@ -150,16 +150,16 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
    */
   private static function integrateArray(array $array): void
   {
-    if (!self::$storage) {
-      self::$storage = $array;
+    if (!static::$storage) {
+      static::$storage = $array;
       return;
     }
 
-    if (self::$storage && self::$static) {
-      $array = self::walk_recursive_remove_static(self::$static, $array);
+    if (static::$storage && static::$static) {
+      $array = self::walk_recursive_remove_static(static::$static, $array);
     }
 
-    self::$storage = array_replace_recursive(self::$storage, $array);
+    static::$storage = array_replace_recursive(static::$storage, $array);
   }
 
   /**
@@ -209,7 +209,7 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
 
   public static function export(): array
   {
-    return self::$storage;
+    return static::$storage;
   }
 
   /** Serializable  */
@@ -220,22 +220,22 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
    */
   public function serialize(): ?string
   {
-    return serialize(self::$storage);
+    return serialize(static::$storage);
   }
   public function unserialize(mixed $data): void
   {
-    self::$storage = unserialize($data);
+    static::$storage = unserialize($data);
   }
 
   /** JsonSerializable */
   public function jsonSerialize(): mixed
   {
-    return self::$storage;
+    return static::$storage;
   }
 
   /** */
   public function getIterator(): ArrayIterator
   {
-    return new \ArrayIterator(self::$storage);
+    return new \ArrayIterator(static::$storage);
   }
 }
