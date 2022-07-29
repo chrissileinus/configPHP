@@ -16,7 +16,7 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
   use arrayAccessReadOnly;
   use singleton;
 
-  private static $static = [];
+  protected static $static = [];
 
   /**
    * Set a static values
@@ -29,7 +29,7 @@ class Storage implements \ArrayAccess, \Serializable, \JsonSerializable, \Iterat
     static::$static = $static;
   }
 
-  private static $storage = [];
+  protected static $storage = [];
 
   /**
    * get
